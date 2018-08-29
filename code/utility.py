@@ -1,5 +1,11 @@
 import os, glob
 import shutil
+import matplotlib.pyplot as plt
+plt.switch_backend('agg')
+
+import numpy as np
+
+
 
 class Tool():
     def split_data(self, train_dir, val_dir, test_dir, classes):
@@ -31,6 +37,21 @@ class Tool():
                 for f in test_list:
                     test_path = f.replace("train", "test")
                     shutil.move(src=f, dst=test_path)
+    @staticmethod
+    def visualizeTrain(history, tag, history_log_directory):
+        keys_list = history.history.keys()
+        print("history keys: ", keys_list)
+        # close all previous plots
+        plt.close('all')
+        # save accuracy and loss for training and validation set
+        for k in keys_list:
+            np.savetxt(history_log_directory + tag + k + '.txt', history.history[k])
+            plt.plot(history.history[k])
+            
+        plt.legend(keys_list, loc='upper right')
+        history_loss_plot = history_log_directory + tag +'training_log.png'
+        print("save plot of loss curve in : ", history_loss_plot)
+        plt.savefig(history_loss_plot)
 
 
 

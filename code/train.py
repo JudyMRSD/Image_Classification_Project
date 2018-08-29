@@ -5,7 +5,9 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint
 import os
 import time
 
-def training(model, training_img_dir, validation_img_dir, trained_model_path):
+
+def training(model, training_img_dir, validation_img_dir, trained_model_path, 
+            history_log_directory, history_plot_tag):
     start_train = time.time()
     assert (os.path.exists(training_img_dir)), "Invalid training image directory"
     assert (os.path.exists(validation_img_dir)), "Invalid validation image directory"
@@ -41,23 +43,29 @@ def training(model, training_img_dir, validation_img_dir, trained_model_path):
     callbacks = [EarlyStopping(monitor='val_acc', patience=20),
                  ModelCheckpoint(filepath=trained_model_path, monitor='val_acc', save_best_only=True)]
     # fits the model on batches with real-time data augmentation:
-    model.fit_generator(train_generator,
+    history = model.fit_generator(train_generator,
                         epochs=100,
                         steps_per_epoch=50,
                         validation_data=val_generator,
                         validation_steps=10,
-                        callbacks=callbacks,
+                         callbacks=callbacks,
                         verbose=1)
-    train_time = time.time() - start_train
-    train_loss, train_accuracy = model.evaluate_generator(train_generator)
-    val_loss, val_accuracy = model.evaluate_generator(val_generator)
 
+    train_time = time.time() - start_train
     print("train time = ", train_time)
+
+    tool = Tool()
+    tool.visualizeTrain(history, history_plot_tag, history_log_directory)
+
+    train_loss, train_accuracy = model.evaluate_generator(train_generator)
     print("train_accuracy", train_accuracy)
+
+    val_loss, val_accuracy = model.evaluate_generator(val_generator)
     print("val_accuracy", val_accuracy)
 
 def train_demo(dataset_name, model_type):
     data_dir = "../data/"
+    history_log_directory = "../data/training_log/"
     if dataset_name == "retinal":
         num_classes = 4
         class_names = ['t0', 't1', 't2', 't3']
@@ -78,14 +86,15 @@ def train_demo(dataset_name, model_type):
     tool.split_data(train_dir=training_img_dir, val_dir=validation_img_dir,
                     test_dir=test_img_dir, classes=class_names)
 
-    fineTuneModel.build_model(model_type, num_classes)
+    fineTuneModel.build_model(model_type, num_classes, global_average_pooling = True)
 
-    training(model=fineTuneModel.model, training_img_dir=training_img_dir, validation_img_dir=validation_img_dir,
-            trained_model_path=trained_model_path)
-
+    training(model=fineTuneModel.model, training_img_dir=training_img_dir, 
+            validation_img_dir=validation_img_dir, trained_model_path=trained_model_path, 
+            history_log_directory = history_log_directory, history_plot_tag = dataset_name+"_"+model_type)
+    
 
 def main():
-    dataset_name = "lung"  # use "retinal" or "lung"
+    dataset_name = "retinal"  # use "retinal" or "lung"
     model_type = 'InceptionV3'  # use InceptionV3,  or Resnet50
     train_demo(dataset_name, model_type)
 
