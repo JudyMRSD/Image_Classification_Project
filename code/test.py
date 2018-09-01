@@ -18,7 +18,7 @@ def testing(trained_model_path, test_dir):
     model = load_model(trained_model_path)
     img_shape = model.input.shape[1:3]
 
-    # no data augmentation (except normalize) , no shuffle for test set
+    # no data augmentation (except normalize)
     test_gen = ImageDataGenerator(rescale=1. / 255)
 
     test_generator = test_gen.flow_from_directory(
@@ -41,8 +41,8 @@ def test_demo(dataset_name, model_type):
 
 
 def main():
-    dataset_name = "lung"  # use "retinal" or "lung"
-    model_type = 'Resnet50'  # use lung or Resnet50
+    dataset_name = "retinal"  # use "retinal" or "lung"
+    model_type = 'InceptionV3'  # use InceptionV3 or Resnet50
     test_demo(dataset_name, model_type)
 
 if __name__ == '__main__':

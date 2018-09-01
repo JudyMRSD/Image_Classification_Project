@@ -1,10 +1,9 @@
 from utility import Tool
 from build_model import Finetune_Model
 from keras.preprocessing.image import ImageDataGenerator
-from keras.callbacks import EarlyStopping, ModelCheckpoint
+from keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
 import os
 import time
-
 
 def training(model, training_img_dir, validation_img_dir, trained_model_path, 
             history_log_directory, history_plot_tag):
@@ -40,15 +39,14 @@ def training(model, training_img_dir, validation_img_dir, trained_model_path,
         shuffle=True)
      
     # Early stopping and save the best model according to accuracy on the validation set
-    callbacks = [EarlyStopping(monitor='val_acc', patience=20),
-                 ModelCheckpoint(filepath=trained_model_path, monitor='val_acc', save_best_only=True)]
+    # removed early stopping, but only the best model is saved
+    callbacks = [ModelCheckpoint(filepath=trained_model_path, monitor='val_loss', save_best_only=True),
+                 ReduceLROnPlateau(monitor='val_loss',factor=0.1, patience=10, verbose=1)]
     # fits the model on batches with real-time data augmentation:
     history = model.fit_generator(train_generator,
-                        epochs=100,
-                        steps_per_epoch=50,
+                        epochs=50,
                         validation_data=val_generator,
-                        validation_steps=10,
-                         callbacks=callbacks,
+                        callbacks=callbacks,
                         verbose=1)
 
     train_time = time.time() - start_train
@@ -75,6 +73,7 @@ def train_demo(dataset_name, model_type):
     else:
         print("Error: invalid model type")
         return
+    split_log = data_dir + "split_log/"+dataset_name+".txt"
     training_img_dir = data_dir + dataset_name + "/train/"
     validation_img_dir = data_dir + dataset_name + "/val/"
     test_img_dir = data_dir + dataset_name + "/test/"
@@ -83,10 +82,11 @@ def train_demo(dataset_name, model_type):
     fineTuneModel = Finetune_Model()
     tool = Tool()
     print("training_img_dir", training_img_dir)
-    tool.split_data(train_dir=training_img_dir, val_dir=validation_img_dir,
+    tool.split_data(split_log = split_log, train_dir=training_img_dir,
+                    val_dir=validation_img_dir,
                     test_dir=test_img_dir, classes=class_names)
 
-    fineTuneModel.build_model(model_type, num_classes, global_average_pooling = True)
+    fineTuneModel.build_model(model_type, num_classes)
 
     training(model=fineTuneModel.model, training_img_dir=training_img_dir, 
             validation_img_dir=validation_img_dir, trained_model_path=trained_model_path, 
