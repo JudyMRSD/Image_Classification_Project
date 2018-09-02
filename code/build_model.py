@@ -2,7 +2,7 @@ from keras.applications.resnet50 import ResNet50
 from keras.models import Model
 from keras import optimizers
 from keras.layers.core import Flatten
-from keras.layers import Dense, GlobalAveragePooling2D
+from keras.layers import Dense, GlobalAveragePooling2D, Dropout
 from keras.applications.inception_v3 import InceptionV3
 
 
@@ -38,6 +38,8 @@ class Finetune_Model():
         x = GlobalAveragePooling2D()(x)
 
         x = Dense(1024, activation='relu')(x)
+        # add dropout to avoid overfitting 
+        x = Dropout(0.5)(x)
         predictions = Dense(num_classes, activation='softmax')(x)
         self.model = Model(input=base_model.input, output=predictions)
 

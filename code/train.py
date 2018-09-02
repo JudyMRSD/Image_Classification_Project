@@ -14,8 +14,9 @@ def training(model, training_img_dir, validation_img_dir, trained_model_path,
     batch_size = 64
     img_shape = model.input.shape[1:3]
 
-    # data augmentation: flip images
+    # data augmentation: flip images and rotate images to avoid overfitting 
     train_gen = ImageDataGenerator(
+        rotation_range=90,   # range in degress 
         rescale=1. / 255,
         horizontal_flip=True,
         vertical_flip=True)
@@ -38,13 +39,12 @@ def training(model, training_img_dir, validation_img_dir, trained_model_path,
         class_mode="categorical",
         shuffle=True)
      
-    # Early stopping and save the best model according to accuracy on the validation set
-    # removed early stopping, but only the best model is saved
+    # No early stopping, but only the best model is saved
     callbacks = [ModelCheckpoint(filepath=trained_model_path, monitor='val_loss', save_best_only=True),
                  ReduceLROnPlateau(monitor='val_loss',factor=0.1, patience=10, verbose=1)]
     # fits the model on batches with real-time data augmentation:
     history = model.fit_generator(train_generator,
-                        epochs=50,
+                        epochs=100,
                         validation_data=val_generator,
                         callbacks=callbacks,
                         verbose=1)

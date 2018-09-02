@@ -79,17 +79,32 @@ class Tool():
     def visualizeTrain(history, tag, history_log_directory):
         keys_list = history.history.keys()
         print("history keys: ", keys_list)
-        # close all previous plots
-        plt.close('all')
+        
         # save accuracy and loss for training and validation set
+        log_list = ['val_loss', 'val_acc', 'loss', 'acc', 'lr']
         for k in keys_list:
             np.savetxt(history_log_directory + tag + k + '.txt', history.history[k])
-            plt.plot(history.history[k])
-            
-        plt.legend(keys_list, loc='upper right')
+        
+
+        # close all previous plots
+        plt.close('all')
+        loss_acc_list = ['val_loss', 'val_acc', 'loss', 'acc']
+        for k in loss_acc_list:
+            plt.plot(history.history[k])   
+        plt.legend(loss_acc_list, loc='upper right')
         history_loss_plot = history_log_directory + tag +'training_log.png'
         print("save plot of loss curve in : ", history_loss_plot)
         plt.savefig(history_loss_plot)
+
+
+        # save learning rate plot
+        plt.close('all')
+        plt.plot(history.history['lr'])
+        plt.legend(['lr'], loc='upper right')
+        history_lr_plot = history_log_directory + tag +'training_learning_rate.png'
+        print("save plot of learning curve in : ", history_lr_plot)
+        plt.savefig(history_lr_plot)
+
 
 
 
