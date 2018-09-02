@@ -1,7 +1,5 @@
 # Project Summary
 Image classification task for identifying 4 classes of retinal images, and 2 classes of lung images. </br> 
-Fine tuned Resnet-50 and InceptionV3 models with pretrained weights from the convolution layers, 
-and randomly initialized fc layer weights. </br>
 
 The pretrained convolution layer weights are not frozen so all layers are trainable. </br>
 
@@ -32,17 +30,17 @@ the less fluctuation on the loss curve is smaller, and the accuracy increased fr
 Following are the explainations on methods and results for fine tuning InceptionV3 models on retina datasets. </br>
 
 **Version_0** is the original version of my code that I experimented on Aug 29th. Although it has early stopping,
-it finished after reaching the maxinum epochs of 100 and didn't trigger early stopping isnce validation accuracy
-didn't stop improving. This is also the version that early stopped at epoch 32 when trained on Dr. Pu's machine.
+it finished after reaching the maxinum epochs of 100 and didn't trigger early stopping since validation accuracy
+didn't stop improving. This is also the version that overfitted and early stopped at epoch 32 when trained 
+on Dr. Pu's computer.
 
-Following is a table recording parameters that I changed and training results. 
+Following is a table recording the parameters that I changed and the training results. 
 
 For all the three versions, only the best model was saved according to some metric and used for later measurement
 of training, validation and testing accuracy. For **version_0**, the metric was validation
 accuracy. For **version_1** and **version_2**, the metric was changed to validation loss. This would not cause much difference 
-in result, since from the final training result plots and based on how they are calculated mathmatically, 
-validation accuracy becomes high when validation loss is low as they both represent the ability of the model to generalize 
-on new data. 
+in result, since validation accuracy becomes high when validation loss is low as they both represent the ability of the model to generalize 
+on new data, as shown in the final training result plots. 
 
 
 |                	    |     version_0	    |    version_1   |        version_2        | 
@@ -63,8 +61,8 @@ on new data.
 
 
 Comparing the three training results, **version_0** has a large flucutation on validation loss. This could be explained by
-it only using a subset of training data for each training epoch, and a subset of validation data for each validation epoch. 
-The amount of data used was possibly not representative of the dataset, so it's also possible for the different result
+that it only used a subset of training data for each training epoch, and a subset of validation data for each validation epoch. 
+The amount of data used was not representative of the dataset, so it's also possible for the different result
 on my computer and when trained on Dr. Pu's computer. 
 Following is the training log for **version_0**. 
 
@@ -72,23 +70,24 @@ Following is the training log for **version_0**.
 
 **Version_1** finishes an epoch after going through all data in the training set, thus the training loss fluctuates less.
 I didn't use early stopping here, and the number of training epochs is only 50 since I was trying to validate the idea
-that number of training samples involved in each epoch has a significant effect on the convergence. The learning rate
-was also plotted in the image since it reduces when validation loss stops improving, 
-but since the scale is relatively small compared to others, the line looks flat. 
+that number of training samples involved in each epoch has a significant effect on the convergence. The learning rate 
+was reduced when validation loss stops increasing. The learning rate was also plotted in the image, 
+but since the scale is relatively small compared to others, the line looked flat. 
+
 Following is the training log for **version_1**. 
 
 ![alt text][v1_training]
 
-**Version_2** used one more data augmentation of rotating the images in addition to flipping, 
-since for retina images, since the samples could have a rotation when the image was collected. 
-The validation loss was more smooth for 0th to 50th epoch compared with version_1, which
+**Version_2** used roatation for data agumentation in addition to flipping, 
+since for retinal images the samples could have a rotation when they were collected. 
+The validation loss was more smooth for 0 th to 50 th epoch compared with version_1, which
 could be explained by the effect of data augmentation and dropout in avoiding overfitting. 
 Following is the training log for **version_2**. 
 
 ![alt text][v2_training]
 
-To see more clearly how the training loss changes, I plotted it on a separate graph for **version_2**. The training learning 
-rate reduces to 0.1 of original learning rate when validation loss stops increasing for 10 epochs. 
+To see more clearly how the training loss changes, I plotted it on a separate graph for **version_2**. 
+The training learning rate reduces to 0.1 of original learning rate when validation loss stops increasing for 10 epochs. 
 
 ![alt text][v2_lr]
 
@@ -153,6 +152,12 @@ Number of testing images: 177 </br>
 
 
 # Previous Result
+
+Summary:
+
+Fine tuned Resnet-50 and InceptionV3 models with pretrained weights from the convolution layers, 
+and randomly initialized fc layer weights. </br>
+
 Following are the results for fine tuning Resnet-50 or InceptionV3 models on retina or lung datasets using version_0 code. </br>
 
 |                	    | Resnet-50, retina	|  Resnet-50, lung  |  InceptionV3, retina | InceptionV3, lung  | 
